@@ -1,0 +1,703 @@
+﻿<!doctype html>
+<html lang="is">
+<meta charset="utf-8">
+<title>Afleysingavaktin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --ground:#f6f8f5; --surface:#ffffff; --surface2:#eef3ee; --ink:#1b2a20; --muted:#5c6c60;
+  --line:#dce5dc; --accent:#0e8a42; --accent-ink:#0a6b33; --accent-soft:#e2f2e7;
+  --bad:#c23b3b; --bad-soft:#f9e9e9; --warn:#a3720f; --warn-soft:#f7efdc;
+  --good:#1c7f48; --good-soft:#e2f2e7;
+  --mo:#8058c8; --ge:#0d8a8a; --thj:#2f6fd0; --bb:#d07a1f; --bi:#c4527a;
+  --shadow:0 1px 3px rgba(27,42,32,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#10150f; --surface:#181f17; --surface2:#1f2a1e; --ink:#e7efe7; --muted:#9fb3a1;
+    --line:#2c3a2b; --accent:#3fc776; --accent-ink:#63d68f; --accent-soft:#1a3323;
+    --bad:#e06a6a; --bad-soft:#3a2020; --warn:#d9a83f; --warn-soft:#37301b;
+    --good:#4cc783; --good-soft:#1a3323;
+    --mo:#a48ae0; --ge:#3fb8b8; --thj:#6f9fe8; --bb:#e0a054; --bi:#dd7fa2;
+    --shadow:0 1px 3px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#10150f; --surface:#181f17; --surface2:#1f2a1e; --ink:#e7efe7; --muted:#9fb3a1;
+  --line:#2c3a2b; --accent:#3fc776; --accent-ink:#63d68f; --accent-soft:#1a3323;
+  --bad:#e06a6a; --bad-soft:#3a2020; --warn:#d9a83f; --warn-soft:#37301b;
+  --good:#4cc783; --good-soft:#1a3323;
+  --mo:#a48ae0; --ge:#3fb8b8; --thj:#6f9fe8; --bb:#e0a054; --bi:#dd7fa2;
+  --shadow:0 1px 3px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--ground);color:var(--ink);font:16px/1.55 "Source Sans 3",system-ui,sans-serif}
+h1,h2,h3{font-family:"Archivo","Source Sans 3",sans-serif;text-wrap:balance;margin:0}
+button{font:inherit;cursor:pointer}
+select,input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent-ink)}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px}
+
+header.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+.top-in{display:flex;align-items:center;gap:12px;padding:10px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:220px}
+.checker{width:34px;height:34px;border-radius:8px;overflow:hidden;flex:none;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.checker i{display:block}
+.checker i:nth-child(1),.checker i:nth-child(4){background:var(--accent)}
+.checker i:nth-child(2),.checker i:nth-child(3){background:var(--surface2)}
+.brand h1{font-size:20px;letter-spacing:-.01em}
+.brand .sub{font-size:12.5px;color:var(--muted);margin-top:-2px}
+.who{display:flex;align-items:center;gap:8px;font-size:14px}
+.who label{color:var(--muted)}
+
+main{padding:20px 0 8px}
+section{margin:0 0 26px}
+.eyebrow{font-family:"Archivo",sans-serif;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+h2{font-size:21px;margin-bottom:12px}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.stat b{display:block;font-family:"Archivo",sans-serif;font-size:26px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.bad b{color:var(--bad)} .stat.warn b{color:var(--warn)} .stat.good b{color:var(--good)} .stat.req b{color:var(--accent-ink)}
+.nextup{font-size:14.5px;background:var(--bad-soft);border:1px solid var(--bad);border-radius:10px;padding:9px 13px;color:var(--ink)}
+.nextup.allgood{background:var(--good-soft);border-color:var(--good)}
+
+.cards{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--muted);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+.card.open{border-left-color:var(--bad)}
+.card.check{border-left-color:var(--warn)}
+.card.done{border-left-color:var(--good)}
+.card.req{border-left-color:var(--accent)}
+.card.rej{border-left-color:var(--muted);opacity:.85}
+.card .row1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.card .when{font-family:"Archivo",sans-serif;font-weight:700;font-size:15.5px;font-variant-numeric:tabular-nums}
+.card .what{font-weight:600}
+.card .why{font-size:13.5px;color:var(--muted);margin-top:2px}
+.badge{display:inline-block;font-family:"Archivo",sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;border-radius:999px;padding:2px 9px;text-transform:uppercase}
+.badge.open{background:var(--bad-soft);color:var(--bad)}
+.badge.check{background:var(--warn-soft);color:var(--warn)}
+.badge.done{background:var(--good-soft);color:var(--good)}
+.badge.req{background:var(--accent-soft);color:var(--accent-ink)}
+.badge.rej{background:var(--surface2);color:var(--muted)}
+.card .actions{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:9px;padding:7px 14px;font-weight:600;font-size:14.5px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#0c1a10}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#0c1a10}}
+.btn.subtle{font-size:13px;padding:5px 10px;color:var(--muted)}
+.covered-by{font-size:14.5px}
+.covered-by b{color:var(--good)}
+.empty{color:var(--muted);font-size:14.5px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:14px}
+
+form.fri{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow);display:grid;gap:10px;grid-template-columns:repeat(2,1fr)}
+form.fri .full{grid-column:1/-1}
+form.fri label{display:block;font-size:13px;color:var(--muted);margin-bottom:3px}
+form.fri select,form.fri input{width:100%}
+#friPreview{grid-column:1/-1;font-size:14px;color:var(--muted)}
+#friPreview b{color:var(--bad)}
+.abs-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.abs{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14.5px;flex-wrap:wrap}
+.abs .grow{flex:1;min-width:200px}
+.abs .note{display:block;font-size:13px;color:var(--muted)}
+details.manual{margin-top:12px;font-size:14.5px}
+details.manual summary{cursor:pointer;color:var(--muted)}
+details.manual form{margin-top:10px}
+
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.months{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.mchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 13px;font-family:"Archivo",sans-serif;font-weight:700;font-size:13.5px;color:var(--muted);flex:none}
+.mchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .mchip[aria-pressed="true"]{color:#0c1a10}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mchip[aria-pressed="true"]{color:#0c1a10}}
+.mine-toggle{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.mine-toggle input{width:auto;accent-color:var(--accent)}
+
+.weekly{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--shadow);font-size:14px}
+.weekly h3{font-size:14px;margin-bottom:6px}
+.weekly ul{margin:0;padding-left:18px}
+.weekly li{margin:2px 0}
+
+.week{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.week h3{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding:9px 14px;border-bottom:1px solid var(--line);background:var(--surface2)}
+.day{display:flex;gap:12px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.day:last-child{border-bottom:none}
+.day.today{background:var(--accent-soft)}
+.day .dlab{flex:none;width:74px;font-family:"Archivo",sans-serif;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums;padding-top:3px}
+.day .sess{flex:1;display:flex;flex-direction:column;gap:5px}
+.chip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-left:4px solid var(--cc,var(--muted));background:var(--surface2);border-radius:7px;padding:5px 10px;font-size:14px}
+.chip .t{font-variant-numeric:tabular-nums;font-weight:600;flex:none}
+.chip .g{flex:1;min-width:110px}
+.ini{font-family:"Archivo",sans-serif;font-weight:700;font-size:12px;color:var(--cc,var(--muted))}
+.chip .flag{font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px}
+.chip .flag.open{background:var(--bad-soft);color:var(--bad)}
+.chip .flag.done{background:var(--good-soft);color:var(--good)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:10px 0 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--cc);margin-right:5px}
+
+footer{border-top:1px solid var(--line);margin-top:12px;padding:20px 0 40px;font-size:14px;color:var(--muted)}
+footer h3{font-size:14px;color:var(--ink);margin-bottom:6px}
+footer ol{margin:0 0 14px;padding-left:20px}
+footer li{margin:3px 0}
+.ro-banner{display:none;background:var(--warn-soft);border:1px solid var(--warn);border-radius:10px;padding:9px 13px;font-size:14px;margin-bottom:14px}
+body.readonly .ro-banner{display:block}
+body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.readonly .abs button{display:none}
+
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:50;align-items:center;justify-content:center}
+#overlay.on{display:flex}
+#overlay div{background:var(--surface);border-radius:12px;padding:18px 26px;font-weight:600}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--ground);border-radius:10px;padding:10px 18px;font-size:14.5px;z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw}
+#toast.on{opacity:1}
+@media (max-width:560px){
+  .stats{grid-template-columns:1fr 1fr;gap:7px}
+  .stat{padding:9px 10px}.stat b{font-size:21px}.stat span{font-size:11.5px}
+  form.fri{grid-template-columns:1fr}
+  .day{flex-direction:column;gap:4px}.day .dlab{width:auto}
+}
+@media (prefers-reduced-motion: reduce){#toast{transition:none}}
+</style>
+
+<script id="state" type="application/json">{"absences":[],"manual":[],"covers":{},"requests":[]}</script>
+
+<header class="top"><div class="wrap top-in">
+  <div class="brand">
+    <div class="checker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div><h1>Afleysingavaktin</h1><div class="sub">Skákdeild Breiðabliks · veturinn 2026–2027</div></div>
+  </div>
+  <div class="who"><label for="whoSel">Hver ert þú?</label><select id="whoSel"><option value="">— veldu nafn —</option></select></div>
+</div></header>
+
+<main class="wrap">
+  <div class="ro-banner">Þú ert í les-ham á þessari síðu. Til að taka tíma eða skrá frí: sendu línu í Messenger-grúbbuna.</div>
+
+  <section id="summary">
+    <div class="eyebrow">Staðan núna</div>
+    <div class="stats">
+      <div class="stat bad"><b id="stVantar">0</b><span>vantar afleysingu</span></div>
+      <div class="stat req"><b id="stBeidnir">0</b><span>frí-beiðnir bíða</span></div>
+      <div class="stat warn"><b id="stAthuga">0</b><span>í athugun</span></div>
+      <div class="stat good"><b id="stManna">0</b><span>mannað / staðfest</span></div>
+    </div>
+    <div class="nextup" id="nextup"></div>
+  </section>
+
+  <section id="pool">
+    <div class="eyebrow">Maður í manns stað</div>
+    <h2>Afleysingapotturinn</h2>
+    <div class="cards" id="poolCards"></div>
+  </section>
+
+  <section id="fri">
+    <div class="eyebrow">Forföll</div>
+    <h2>Frí og beiðnir</h2>
+    <form class="fri" id="friForm">
+      <div><label for="friCoach">Þjálfari</label><select id="friCoach"></select></div>
+      <div><label for="friReason">Ástæða</label><input id="friReason" placeholder="t.d. mót, veikindi, ferðalag" required></div>
+      <div><label for="friFrom">Frá og með</label><input id="friFrom" type="date" required></div>
+      <div><label for="friTo">Til og með</label><input id="friTo" type="date" required></div>
+      <div id="friPreview"></div>
+      <div class="full"><button class="btn primary" type="submit" id="friBtn">Senda frí-beiðni</button></div>
+      <div class="full" id="friHint" style="font-size:13px;color:var(--muted)">Beiðnin fer til yfirþjálfara til samþykktar — við samþykki fara æfingarnar sjálfkrafa í pottinn.</div>
+    </form>
+    <div class="cards" id="reqList" style="margin-top:12px"></div>
+    <div class="abs-list" id="absList"></div>
+    <details class="manual"><summary>Bæta sérstakri vakt í pottinn (t.d. Kór-hópar, annað)</summary>
+      <form class="fri" id="manForm">
+        <div><label for="manDate">Dagsetning</label><input id="manDate" type="date" required></div>
+        <div><label for="manLabel">Lýsing</label><input id="manLabel" placeholder="t.d. Yngri Kór 16:30 – vantar" required></div>
+        <div class="full"><button class="btn" type="submit">Setja í pottinn</button></div>
+      </form>
+    </details>
+  </section>
+
+  <section id="tafla">
+    <div class="eyebrow">Veturinn í heild</div>
+    <h2>Æfingataflan</h2>
+    <div class="weekly">
+      <h3>Fasta vikuplanið</h3>
+      <ul>
+        <li><b>Yngri hópur Stúkan:</b> mán 16:30–17:30 og lau 10:00–11:00 (Markús Orri)</li>
+        <li><b>Eldri hópur Stúkan:</b> þri 17:00–18:30 (MO), fim 17:30–19:00 (GE), fös 17:00–18:30 (sameiginleg)</li>
+        <li><b>Framhaldshópur:</b> mán 17:30–19:00 (GE), mið 17:30–19:00 (ÞJ), fös 17:00–18:30 (sameiginleg)</li>
+        <li><b>8. bekkur og eldri:</b> lau 11:00–12:30 (Gunnar Erik)</li>
+        <li><b>Yngri og Eldri hópur Kór:</b> 2x í viku hjá Benedikt Briem — dagar/tímar óákveðnir enn</li>
+        <li><b>U20/afrek:</b> mán og mið 19:15–21:00 (Birkir Ísak)</li>
+      </ul>
+    </div>
+    <div class="filters">
+      <div class="months" id="months"></div>
+      <label class="mine-toggle"><input type="checkbox" id="mineChk"> bara mínir tímar</label>
+    </div>
+    <div id="weeks"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <footer>
+    <h3>Verklagið — engin æfing fellur niður</h3>
+    <ol>
+      <li>Biddu um frí hér <b>um leið</b> og þú veist af því — yfirþjálfari samþykkir og æfingarnar þínar fara þá sjálfkrafa í pottinn.</li>
+      <li>Sérðu lausan tíma sem þú getur tekið? Smelltu á „Ég tek tímann“ — þá er hann frá.</li>
+      <li>Láttu líka vita í Messenger-grúbbunni svo allir séu með.</li>
+      <li>Ef enginn tekur tíma: Benedikt finnur mann. Falli æfing alveg niður þarf Benedikt <b>og</b> Hafþór (tengiliður Breiðabliks) að vita af því.</li>
+    </ol>
+    <h3>Afleysingapottur utan fastra þjálfara</h3>
+    <p>Mikael Bjarki (forfallaþjálfari) · Matthías Björgvin · Ingvar · Vignir Vatnar · Helgi Ólafs · Lenka</p>
+    <p>Grunngögn: <a href="https://docs.google.com/spreadsheets/d/12Wa441GTjoUTqVFHTX4npCvQllNKJGk67Gg4__bxUx8/edit" target="_blank" rel="noopener">Stóra planið (Google Sheets)</a></p>
+  </footer>
+</main>
+
+<div id="overlay"><div>Vista…</div></div>
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+var BOOT = "<!doctype html>\n" + document.documentElement.outerHTML;
+
+/* ---------- grunnskrá ---------- */
+var COACHES = {
+  MO:{name:"Markús Orri", cvar:"--mo"},
+  GE:{name:"Gunnar Erik", cvar:"--ge"},
+  "ÞJ":{name:"Þorsteinn Jakob", cvar:"--thj"},
+  BB:{name:"Benedikt Briem", cvar:"--bb"},
+  "BÍ":{name:"Birkir Ísak", cvar:"--bi"}
+};
+var POOL_EXTRA = ["Mikael Bjarki","Matthías Björgvin","Ingvar","Vignir Vatnar","Helgi Ólafs","Lenka"];
+var ALL_NAMES = Object.keys(COACHES).map(function(k){return COACHES[k].name;}).concat(POOL_EXTRA);
+
+var GROUPS = {
+  "yngri":{label:"Yngri hópur Stúkan", short:"Yngri Stúkan"},
+  "eldri":{label:"Eldri hópur Stúkan", short:"Eldri Stúkan"},
+  "framhald":{label:"Framhaldshópur", short:"Framhald"},
+  "eldri-framhald":{label:"Eldri hópur + Framhald (sameiginleg)", short:"Eldri + Framhald"},
+  "8bekkur":{label:"8. bekkur og eldri", short:"8. bekkur+"},
+  "u20":{label:"U20/afrek", short:"U20/afrek"}
+};
+var PATTERN = {
+  1:[{g:"yngri",t:"16:30–17:30",c:["MO"]},{g:"framhald",t:"17:30–19:00",c:["GE"]},{g:"u20",t:"19:15–21:00",c:["BÍ"]}],
+  2:[{g:"eldri",t:"17:00–18:30",c:["MO"]}],
+  3:[{g:"framhald",t:"17:30–19:00",c:["ÞJ"]},{g:"u20",t:"19:15–21:00",c:["BÍ"]}],
+  4:[{g:"eldri",t:"17:30–19:00",c:["GE"]}],
+  5:[{g:"eldri-framhald",t:"17:00–18:30",c:["GE","ÞJ"]}],
+  6:[{g:"yngri",t:"10:00–11:00",c:["MO"]},{g:"8bekkur",t:"11:00–12:30",c:["GE"]}]
+};
+var SEASON_START="2026-08-31", SEASON_END="2027-05-07";
+function isHoliday(d){
+  return (d>="2026-12-18"&&d<="2027-01-04")||(d>="2027-03-20"&&d<="2027-03-29")||d==="2027-04-22"||d==="2027-05-01"||d==="2027-05-06";
+}
+var DAYS=["sun","Mán","Þri","Mið","Fim","Fös","Lau"];
+var MABBR=["jan","feb","mars","apríl","maí","jún","júl","ág","sept","okt","nóv","des"];
+function iso(dt){return dt.toISOString().slice(0,10);}
+function parse(d){return new Date(d+"T12:00:00Z");}
+function dlabel(d){var dt=parse(d);return DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1);}
+function dlong(d){var dt=parse(d);return DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+". "+MABBR[dt.getUTCMonth()];}
+
+var SESSIONS=[];
+(function(){
+  var dt=parse(SEASON_START), end=parse(SEASON_END);
+  while(dt<=end){
+    var d=iso(dt), dow=dt.getUTCDay();
+    if(!isHoliday(d)&&PATTERN[dow]){
+      PATTERN[dow].forEach(function(p){
+        SESSIONS.push({key:d+"|"+p.g, date:d, dow:dow, g:p.g, t:p.t, c:p.c.slice()});
+      });
+    }
+    dt.setUTCDate(dt.getUTCDate()+1);
+  }
+})();
+
+var MONTH_BLOCKS=[
+  {id:"sept",label:"sept",from:"2026-08-31",to:"2026-10-03"},
+  {id:"okt",label:"okt",from:"2026-10-05",to:"2026-10-31"},
+  {id:"nov",label:"nóv",from:"2026-11-02",to:"2026-11-28"},
+  {id:"des",label:"des",from:"2026-11-30",to:"2026-12-17"},
+  {id:"jan",label:"jan",from:"2027-01-05",to:"2027-01-30"},
+  {id:"feb",label:"feb",from:"2027-02-01",to:"2027-02-27"},
+  {id:"mars",label:"mars",from:"2027-03-01",to:"2027-03-19"},
+  {id:"april",label:"apríl",from:"2027-03-30",to:"2027-04-24"},
+  {id:"mai",label:"maí",from:"2027-04-26",to:"2027-05-07"}
+];
+
+/* ---------- ástand ---------- */
+var STATE = JSON.parse(document.getElementById("state").textContent);
+STATE.requests = STATE.requests || [];
+var HEAD_COACH = "Benedikt Briem";
+var who = "";
+try{ who = localStorage.getItem("afleysing-who")||""; }catch(e){}
+var curMonth = (function(){
+  var today = new Date().toISOString().slice(0,10);
+  for(var i=0;i<MONTH_BLOCKS.length;i++){ if(today<=MONTH_BLOCKS[i].to) return MONTH_BLOCKS[i].id; }
+  return "sept";
+})();
+var mineOnly=false;
+try{ mineOnly = localStorage.getItem("afleysing-mine")==="1"; }catch(e){}
+var readonly=false;
+
+/* þarfir: sjálfvirkar úr fríum + handvirkar vaktir */
+function computeNeeds(){
+  var needs=[];
+  STATE.absences.forEach(function(a){
+    SESSIONS.forEach(function(s){
+      if(s.date>=a.from&&s.date<=a.to&&s.c.indexOf(a.coach)>=0){
+        needs.push({key:s.date+"|"+s.g+"|"+a.coach, kind:"auto", session:s, coach:a.coach, absence:a});
+      }
+    });
+  });
+  STATE.manual.forEach(function(m){
+    needs.push({key:"m|"+m.id, kind:"manual", manual:m});
+  });
+  needs.sort(function(x,y){
+    var dx=x.kind==="auto"?x.session.date:x.manual.date;
+    var dy=y.kind==="auto"?y.session.date:y.manual.date;
+    return dx<dy?-1:dx>dy?1:0;
+  });
+  return needs;
+}
+function needDate(n){return n.kind==="auto"?n.session.date:n.manual.date;}
+function needStatus(n){
+  if(STATE.covers[n.key]) return "done";
+  if(n.kind==="manual"&&n.manual.status==="check") return "check";
+  return "open";
+}
+
+/* ---------- vistun (síðan gefur sjálfa sig út) ---------- */
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function toast(msg){
+  var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(toast._h); toast._h=setTimeout(function(){t.classList.remove("on");},4200);
+}
+function setReadonly(){
+  readonly=true; document.body.classList.add("readonly"); render();
+}
+function saveState(){
+  render();
+  var ov=document.getElementById("overlay"); ov.classList.add("on");
+  var useP=(window.claude&&window.claude.use)?window.claude.use("artifact"):Promise.resolve(null);
+  return useP.then(function(art){
+    if(!art){ ov.classList.remove("on"); toast("Vistun er ekki í boði í þessum vafra — opnaðu síðuna í Claude."); return; }
+    return fetch(location.href.split("#")[0],{cache:"no-store"}).then(function(r){
+      if(!r.ok) throw new Error("src");
+      return r.text();
+    }).catch(function(){ return BOOT; }).then(function(src){
+      var OPEN='<script id="state" type="application/json">';
+      var i=src.indexOf(OPEN);
+      var j=src.indexOf("<\/script>",i);
+      if(i<0||j<0) throw {code:"invalid_content",message:"state block"};
+      var json=JSON.stringify(STATE).replace(/</g,"\\u003c");
+      var html=src.slice(0,i+OPEN.length)+json+src.slice(j);
+      return art.publish(html);
+    });
+  }).then(function(res){
+    if(res&&res.version){ /* síðan endurhleðst sjálf */ }
+  }).catch(function(err){
+    ov.classList.remove("on");
+    var code=err&&err.code;
+    if(code==="conflict"){ toast("Einhver annar vistaði rétt á undan — sæki nýjustu útgáfu…"); return; }
+    if(code==="not_writer"||code==="not_granted"||code==="consent_required"){ toast("Þú hefur ekki skrifréttindi á síðuna."); setReadonly(); return; }
+    if(code==="rate_limited"){ toast("Of margar vistanir í röð — bíddu augnablik og reyndu aftur."); return; }
+    toast("Vistun mistókst — reyndu aftur.");
+  });
+}
+
+/* ---------- aðgerðir ---------- */
+function requireWho(){
+  if(who) return true;
+  toast("Veldu fyrst nafnið þitt efst á síðunni.");
+  document.getElementById("whoSel").focus();
+  return false;
+}
+function takeShift(key,label){
+  if(readonly||!requireWho()) return;
+  if(!confirm(who+" tekur: "+label+" — staðfesta?")) return;
+  STATE.covers[key]={by:who,ts:Date.now()};
+  saveState();
+}
+function releaseShift(key,label){
+  if(readonly) return;
+  var c=STATE.covers[key]; if(!c) return;
+  if(!confirm("Hætta við afleysingu ("+c.by+") á: "+label+"?")) return;
+  delete STATE.covers[key];
+  saveState();
+}
+function addAbsence(coach,from,to,reason,note){
+  var id="a"+Date.now().toString(36);
+  STATE.absences.push({id:id,coach:coach,from:from,to:to,reason:reason,note:note||""});
+  saveState();
+}
+function addRequest(coach,from,to,reason){
+  var id="r"+Date.now().toString(36);
+  STATE.requests.push({id:id,coach:coach,from:from,to:to,reason:reason,by:who,status:"pending",ts:Date.now()});
+  saveState();
+}
+function findReq(id){
+  for(var i=0;i<STATE.requests.length;i++) if(STATE.requests[i].id===id) return STATE.requests[i];
+  return null;
+}
+function approveReq(id){
+  var r=findReq(id); if(!r) return;
+  if(!confirm("Samþykkja frí: "+(COACHES[r.coach]?COACHES[r.coach].name:r.coach)+" "+dlong(r.from)+(r.to!==r.from?" – "+dlong(r.to):"")+"? Æfingarnar fara í pottinn.")) return;
+  STATE.requests=STATE.requests.filter(function(x){return x.id!==id;});
+  STATE.absences.push({id:"a"+Date.now().toString(36),coach:r.coach,from:r.from,to:r.to,reason:r.reason,note:"Beiðni samþykkt af yfirþjálfara."});
+  saveState();
+}
+function rejectReq(id){
+  var r=findReq(id); if(!r) return;
+  var why=prompt("Hafna beiðni — stutt skýring (birtist umsækjanda):","");
+  if(why===null) return;
+  r.status="rejected"; r.rejNote=why.trim();
+  saveState();
+}
+function delReq(id){
+  STATE.requests=STATE.requests.filter(function(x){return x.id!==id;});
+  saveState();
+}
+function delAbsence(id){
+  var a=null; STATE.absences=STATE.absences.filter(function(x){ if(x.id===id){a=x;return false;} return true; });
+  if(a){
+    SESSIONS.forEach(function(s){
+      if(s.date>=a.from&&s.date<=a.to&&s.c.indexOf(a.coach)>=0) delete STATE.covers[s.date+"|"+s.g+"|"+a.coach];
+    });
+  }
+  saveState();
+}
+function addManual(date,label){
+  var id="m"+Date.now().toString(36);
+  STATE.manual.push({id:id,date:date,label:label,status:"open",note:""});
+  saveState();
+}
+function delManual(id){
+  STATE.manual=STATE.manual.filter(function(m){return m.id!==id;});
+  delete STATE.covers["m|"+id];
+  saveState();
+}
+
+/* ---------- teikning ---------- */
+function cvar(ini){return COACHES[ini]?COACHES[ini].cvar:"--muted";}
+function iniSpan(list){
+  return list.map(function(k){
+    return '<span class="ini" style="--cc:var('+cvar(k)+');color:var('+cvar(k)+')">'+esc(k)+"</span>";
+  }).join(" ");
+}
+function render(){
+  var needs=computeNeeds();
+  var today=new Date().toISOString().slice(0,10);
+
+  /* stats */
+  var nOpen=0,nCheck=0,nDone=0,next=null;
+  needs.forEach(function(n){
+    var st=needStatus(n);
+    if(st==="open"){ nOpen++; if(!next&&needDate(n)>=today) next=n; }
+    else if(st==="check") nCheck++;
+    else nDone++;
+  });
+  document.getElementById("stVantar").textContent=nOpen;
+  document.getElementById("stAthuga").textContent=nCheck;
+  document.getElementById("stManna").textContent=nDone;
+  document.getElementById("stBeidnir").textContent=STATE.requests.filter(function(r){return r.status==="pending";}).length;
+  var nu=document.getElementById("nextup");
+  if(next){
+    var lbl=next.kind==="auto"
+      ? dlong(next.session.date)+" · "+GROUPS[next.session.g].short+" "+next.session.t
+      : dlong(next.manual.date)+" · "+next.manual.label;
+    nu.className="nextup";
+    nu.innerHTML="<b>Næst óleyst:</b> "+esc(lbl);
+  }else{
+    nu.className="nextup allgood";
+    nu.textContent = nOpen>0 ? "Óleystir tímar eru liðnir — sjá pottinn." : "Allar æfingar mannaðar eins og staðan er núna. ✔";
+  }
+
+  /* pottur */
+  var pc=document.getElementById("poolCards");
+  if(!needs.length){
+    pc.innerHTML='<div class="empty">Potturinn er tómur — engin frí skráð framundan.</div>';
+  }else{
+    pc.innerHTML=needs.map(function(n){
+      var st=needStatus(n), key=n.key, cov=STATE.covers[key];
+      var when,what,why,label;
+      if(n.kind==="auto"){
+        var s=n.session, others=s.c.filter(function(x){return x!==n.coach;});
+        when=dlong(s.date); what=GROUPS[s.g].label+" · "+s.t;
+        why="Í stað: "+COACHES[n.coach].name+" ("+esc(n.absence.reason)+")"+(others.length?" · "+others.map(function(o){return COACHES[o].name;}).join(", ")+" er áfram á staðnum":"");
+        label=dlabel(s.date)+" "+GROUPS[s.g].short+" "+s.t;
+      }else{
+        when=dlong(n.manual.date); what=n.manual.label;
+        why=n.manual.note||""; label=n.manual.label;
+      }
+      var badge = st==="open"?'<span class="badge open">Vantar</span>'
+        : st==="check"?'<span class="badge check">Athuga</span>'
+        : '<span class="badge done">Staðfest</span>';
+      var act="";
+      if(st==="done"){
+        act='<span class="covered-by">Afleysing: <b>'+esc(cov.by)+"</b></span> "
+          +'<button class="btn subtle" data-act="release" data-key="'+esc(key)+'" data-label="'+esc(label)+'">hætta við</button>';
+      }else{
+        act='<button class="btn primary" data-act="take" data-key="'+esc(key)+'" data-label="'+esc(label)+'">Ég tek tímann</button>';
+        if(n.kind==="manual") act+=' <button class="btn subtle" data-act="delman" data-key="'+esc(n.manual.id)+'">fjarlægja</button>';
+      }
+      return '<div class="card '+st+'"><div class="row1"><span class="when">'+esc(when)+"</span> "+badge+"</div>"
+        +'<div class="what">'+esc(what)+"</div>"
+        +(why?'<div class="why">'+esc(why)+"</div>":"")
+        +'<div class="actions">'+act+"</div></div>";
+    }).join("");
+  }
+
+  /* frí-beiðnir */
+  var isHead = who===HEAD_COACH;
+  document.getElementById("friBtn").textContent = isHead ? "Skrá frí — fer beint í pottinn" : "Senda frí-beiðni";
+  document.getElementById("friHint").style.display = isHead ? "none" : "";
+  document.getElementById("reqList").innerHTML=STATE.requests.map(function(r){
+    var cname=COACHES[r.coach]?COACHES[r.coach].name:r.coach;
+    var span=r.from===r.to?dlong(r.from):dlong(r.from)+" – "+dlong(r.to);
+    var n=SESSIONS.filter(function(s){return s.date>=r.from&&s.date<=r.to&&s.c.indexOf(r.coach)>=0;}).length;
+    var cnt=n===1?"1 æfing færi í pottinn":n+" æfingar færu í pottinn";
+    if(r.status==="rejected"){
+      return '<div class="card rej"><div class="row1"><span class="when">'+esc(span)+'</span> <span class="badge rej">Hafnað</span></div>'
+        +'<div class="what">'+esc(cname)+' · '+esc(r.reason)+"</div>"
+        +(r.rejNote?'<div class="why">Skýring: '+esc(r.rejNote)+"</div>":"")
+        +'<div class="actions"><button class="btn subtle" data-act="delreq" data-key="'+esc(r.id)+'">fjarlægja</button></div></div>';
+    }
+    var act;
+    if(isHead){
+      act='<button class="btn primary" data-act="approve" data-key="'+esc(r.id)+'">Samþykkja</button> '
+         +'<button class="btn" data-act="reject" data-key="'+esc(r.id)+'">Hafna</button>';
+    }else if(who&&(who===r.by||who===cname)){
+      act='<span class="covered-by">Bíður samþykkis yfirþjálfara</span> <button class="btn subtle" data-act="delreq" data-key="'+esc(r.id)+'">afturkalla</button>';
+    }else{
+      act='<span class="covered-by">Bíður samþykkis yfirþjálfara</span>';
+    }
+    return '<div class="card req"><div class="row1"><span class="when">'+esc(span)+'</span> <span class="badge req">Frí-beiðni</span></div>'
+      +'<div class="what">'+esc(cname)+' · '+esc(r.reason)+"</div>"
+      +'<div class="why">'+esc(cnt)+(r.by&&r.by!==cname?" · sent inn af "+esc(r.by):"")+"</div>"
+      +'<div class="actions">'+act+"</div></div>";
+  }).join("");
+
+  /* frí-listi */
+  document.getElementById("absList").innerHTML=STATE.absences.map(function(a){
+    var span = a.from===a.to ? dlong(a.from) : dlong(a.from)+" – "+dlong(a.to);
+    return '<div class="abs"><span class="grow"><b>'+esc(COACHES[a.coach]?COACHES[a.coach].name:a.coach)+"</b> · "+esc(span)+" · "+esc(a.reason)
+      +(a.note?'<span class="note">'+esc(a.note)+"</span>":"")+"</span>"
+      +'<button class="btn subtle" data-act="delabs" data-key="'+esc(a.id)+'">eyða</button></div>';
+  }).join("")||'<div class="empty">Engin frí skráð.</div>';
+
+  /* mánaðaflipar */
+  document.getElementById("months").innerHTML=MONTH_BLOCKS.map(function(m){
+    return '<button class="mchip" data-m="'+m.id+'" aria-pressed="'+(m.id===curMonth)+'">'+m.label+"</button>";
+  }).join("");
+
+  /* vikur */
+  var blk=MONTH_BLOCKS.filter(function(m){return m.id===curMonth;})[0];
+  var needByKey={};
+  needs.forEach(function(n){ if(n.kind==="auto") needByKey[n.session.key]=needByKey[n.session.key]||[], needByKey[n.session.key].push(n); });
+  var myIni=null;
+  Object.keys(COACHES).forEach(function(k){ if(COACHES[k].name===who) myIni=k; });
+  var sess=SESSIONS.filter(function(s){return s.date>=blk.from&&s.date<=blk.to;});
+  if(mineOnly&&who){
+    sess=sess.filter(function(s){
+      if(myIni&&s.c.indexOf(myIni)>=0) return true;
+      var ns=needByKey[s.key]||[];
+      return ns.some(function(n){var c=STATE.covers[n.key];return c&&c.by===who;});
+    });
+  }
+  var weeks={};
+  sess.forEach(function(s){
+    var dt=parse(s.date), mon=new Date(dt); mon.setUTCDate(mon.getUTCDate()-((mon.getUTCDay()+6)%7));
+    var wk=iso(mon); weeks[wk]=weeks[wk]||{}; (weeks[wk][s.date]=weeks[wk][s.date]||[]).push(s);
+  });
+  var wkeys=Object.keys(weeks).sort();
+  document.getElementById("weeks").innerHTML=wkeys.map(function(wk){
+    var days=Object.keys(weeks[wk]).sort();
+    var first=parse(days[0]), last=parse(days[days.length-1]);
+    var head=first.getUTCDate()+". "+MABBR[first.getUTCMonth()]+" – "+last.getUTCDate()+". "+MABBR[last.getUTCMonth()];
+    return '<div class="week"><h3>Vikan '+head+"</h3>"+days.map(function(d){
+      return '<div class="day'+(d===today?" today":"")+'"><div class="dlab">'+esc(dlabel(d))+'</div><div class="sess">'
+        +weeks[wk][d].map(function(s){
+          var flags="";
+          (needByKey[s.key]||[]).forEach(function(n){
+            var cov=STATE.covers[n.key];
+            flags+=cov?'<span class="flag done">'+esc(cov.by)+" leysir af</span>"
+                     :'<span class="flag open">vantar f. '+esc(n.coach)+"</span>";
+          });
+          return '<div class="chip" style="--cc:var('+cvar(s.c[0])+')"><span class="t">'+esc(s.t)+'</span><span class="g">'+esc(GROUPS[s.g].short)+"</span>"+iniSpan(s.c)+flags+"</div>";
+        }).join("")+"</div></div>";
+    }).join("")+"</div>";
+  }).join("")||'<div class="empty">'+(mineOnly?"Engir tímar merktir þér í þessum mánuði.":"Engar æfingar í þessum mánuði (frí).")+"</div>";
+
+  /* legend */
+  document.getElementById("legend").innerHTML=Object.keys(COACHES).map(function(k){
+    return '<span style="--cc:var('+COACHES[k].cvar+')"><i></i>'+esc(k)+" = "+esc(COACHES[k].name)+"</span>";
+  }).join("")+'<span>· Kór-hópar (BB) eru utan töflu þar til dagar liggja fyrir</span>';
+}
+
+/* ---------- viðburðir ---------- */
+document.getElementById("whoSel").innerHTML='<option value="">— veldu nafn —</option>'+ALL_NAMES.map(function(n){
+  return '<option'+(n===who?" selected":"")+">"+esc(n)+"</option>";
+}).join("");
+document.getElementById("whoSel").addEventListener("change",function(){
+  who=this.value;
+  try{ localStorage.setItem("afleysing-who",who); }catch(e){}
+  Object.keys(COACHES).forEach(function(k){ if(COACHES[k].name===who) document.getElementById("friCoach").value=k; });
+  render();
+});
+document.getElementById("mineChk").checked=mineOnly;
+document.getElementById("mineChk").addEventListener("change",function(){
+  mineOnly=this.checked;
+  try{ localStorage.setItem("afleysing-mine",mineOnly?"1":"0"); }catch(e){}
+  render();
+});
+document.getElementById("friCoach").innerHTML=Object.keys(COACHES).map(function(k){
+  return '<option value="'+k+'">'+esc(COACHES[k].name)+"</option>";
+}).join("");
+Object.keys(COACHES).forEach(function(k){ if(COACHES[k].name===who) document.getElementById("friCoach").value=k; });
+function friPreview(){
+  var c=document.getElementById("friCoach").value;
+  var f=document.getElementById("friFrom").value, t=document.getElementById("friTo").value;
+  var el=document.getElementById("friPreview");
+  if(!f||!t){ el.textContent=""; return; }
+  var n=SESSIONS.filter(function(s){return s.date>=f&&s.date<=t&&s.c.indexOf(c)>=0;}).length;
+  el.innerHTML=n?"Þetta setur <b>"+(n===1?"1 æfingu":n+" æfingar")+"</b> í pottinn.":"Engar æfingar á töflu hjá þessum þjálfara á þessu bili"+(c==="BB"?" — notaðu „sérstaka vakt“ fyrir Kór-hópana.":".");
+}
+["friCoach","friFrom","friTo"].forEach(function(id){document.getElementById(id).addEventListener("change",friPreview);});
+document.getElementById("friForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  if(readonly||!requireWho()) return;
+  var c=document.getElementById("friCoach").value;
+  var f=document.getElementById("friFrom").value, t=document.getElementById("friTo").value;
+  var r=document.getElementById("friReason").value.trim();
+  if(!f||!t||!r) return;
+  if(t<f){ toast("„Til og með“ er á undan „frá og með“."); return; }
+  if(who===HEAD_COACH) addAbsence(c,f,t,r);
+  else addRequest(c,f,t,r);
+});
+document.getElementById("manForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  if(readonly||!requireWho()) return;
+  var d=document.getElementById("manDate").value, l=document.getElementById("manLabel").value.trim();
+  if(!d||!l) return;
+  addManual(d,l);
+});
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]"); if(!b) return;
+  var act=b.getAttribute("data-act"), key=b.getAttribute("data-key"), label=b.getAttribute("data-label")||"";
+  if(act==="take") takeShift(key,label);
+  else if(act==="release") releaseShift(key,label);
+  else if(act==="approve"){ if(!readonly&&requireWho()) approveReq(key); }
+  else if(act==="reject"){ if(!readonly&&requireWho()) rejectReq(key); }
+  else if(act==="delreq"){ if(!readonly&&confirm("Fjarlægja þessa frí-beiðni?")) delReq(key); }
+  else if(act==="delabs"){ if(confirm("Eyða þessari frískráningu (og afleysingum hennar)?")) delAbsence(key); }
+  else if(act==="delman"){ if(confirm("Fjarlægja þessa vakt úr pottinum?")) delManual(key); }
+  else if(b.classList.contains("mchip")){ }
+});
+document.getElementById("months").addEventListener("click",function(e){
+  var b=e.target.closest(".mchip"); if(!b) return;
+  curMonth=b.getAttribute("data-m"); render();
+});
+
+render();
+})();
+</script>
+
+</html>
