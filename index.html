@@ -320,7 +320,7 @@ var STATE = JSON.parse(document.getElementById("state").textContent);
 delete STATE.requests;
 /* Sameiginleg vistun: slóð á Apps Script vef-appið. Þegar hún er sett
    vistast allt þangað og virkar hjá öllum — annars claude.ai-leiðin. */
-var SYNC_URL = "";
+var SYNC_URL = "https://script.google.com/macros/s/AKfycbxfNwVRDJJzskB7MNCNNq59N-VftXk551dYZllhxrSSXeAYG5TfmxdiDo9ZNJtlfS0qRA/exec";
 var VERSION = 0;
 var who = "";
 try{ who = localStorage.getItem("afleysing-who")||""; }catch(e){}
