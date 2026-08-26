@@ -59,11 +59,11 @@ section{margin:0 0 26px}
 .eyebrow{font-family:"Archivo",sans-serif;font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
 h2{font-size:21px;margin-bottom:12px}
 
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
 .stat b{display:block;font-family:"Archivo",sans-serif;font-size:26px;font-variant-numeric:tabular-nums}
 .stat span{font-size:13px;color:var(--muted)}
-.stat.bad b{color:var(--bad)} .stat.warn b{color:var(--warn)} .stat.good b{color:var(--good)} .stat.req b{color:var(--accent-ink)}
+.stat.bad b{color:var(--bad)} .stat.warn b{color:var(--warn)} .stat.good b{color:var(--good)}
 .nextup{font-size:14.5px;background:var(--bad-soft);border:1px solid var(--bad);border-radius:10px;padding:9px 13px;color:var(--ink)}
 .nextup.allgood{background:var(--good-soft);border-color:var(--good)}
 
@@ -72,8 +72,6 @@ h2{font-size:21px;margin-bottom:12px}
 .card.open{border-left-color:var(--bad)}
 .card.check{border-left-color:var(--warn)}
 .card.done{border-left-color:var(--good)}
-.card.req{border-left-color:var(--accent)}
-.card.rej{border-left-color:var(--muted);opacity:.85}
 .card .row1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .card .when{font-family:"Archivo",sans-serif;font-weight:700;font-size:15.5px;font-variant-numeric:tabular-nums}
 .card .what{font-weight:600}
@@ -82,8 +80,6 @@ h2{font-size:21px;margin-bottom:12px}
 .badge.open{background:var(--bad-soft);color:var(--bad)}
 .badge.check{background:var(--warn-soft);color:var(--warn)}
 .badge.done{background:var(--good-soft);color:var(--good)}
-.badge.req{background:var(--accent-soft);color:var(--accent-ink)}
-.badge.rej{background:var(--surface2);color:var(--muted)}
 .card .actions{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .btn{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:9px;padding:7px 14px;font-weight:600;font-size:14.5px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -161,7 +157,7 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
 @media (prefers-reduced-motion: reduce){#toast{transition:none}}
 </style>
 
-<script id="state" type="application/json">{"absences":[],"manual":[],"covers":{},"requests":[]}</script>
+<script id="state" type="application/json">{"absences":[],"manual":[],"covers":{}}</script>
 
 <header class="top"><div class="wrap top-in">
   <div class="brand">
@@ -178,7 +174,6 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
     <div class="eyebrow">Staðan núna</div>
     <div class="stats">
       <div class="stat bad"><b id="stVantar">0</b><span>vantar afleysingu</span></div>
-      <div class="stat req"><b id="stBeidnir">0</b><span>frí-beiðnir bíða</span></div>
       <div class="stat warn"><b id="stAthuga">0</b><span>í athugun</span></div>
       <div class="stat good"><b id="stManna">0</b><span>mannað / staðfest</span></div>
     </div>
@@ -193,17 +188,15 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
 
   <section id="fri">
     <div class="eyebrow">Forföll</div>
-    <h2>Frí og beiðnir</h2>
+    <h2>Skrá frí</h2>
     <form class="fri" id="friForm">
       <div><label for="friCoach">Þjálfari</label><select id="friCoach"></select></div>
       <div><label for="friReason">Ástæða</label><input id="friReason" placeholder="t.d. mót, veikindi, ferðalag" required></div>
       <div><label for="friFrom">Frá og með</label><input id="friFrom" type="date" required></div>
       <div><label for="friTo">Til og með</label><input id="friTo" type="date" required></div>
       <div id="friPreview"></div>
-      <div class="full"><button class="btn primary" type="submit" id="friBtn">Senda frí-beiðni</button></div>
-      <div class="full" id="friHint" style="font-size:13px;color:var(--muted)">Beiðnin fer til yfirþjálfara til samþykktar — við samþykki fara æfingarnar sjálfkrafa í pottinn.</div>
+      <div class="full"><button class="btn primary" type="submit">Skrá frí — æfingarnar fara sjálfkrafa í pottinn</button></div>
     </form>
-    <div class="cards" id="reqList" style="margin-top:12px"></div>
     <div class="abs-list" id="absList"></div>
     <details class="manual"><summary>Bæta sérstakri vakt í pottinn (t.d. Kór-hópar, annað)</summary>
       <form class="fri" id="manForm">
@@ -239,7 +232,7 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
   <footer>
     <h3>Verklagið — engin æfing fellur niður</h3>
     <ol>
-      <li>Biddu um frí hér <b>um leið</b> og þú veist af því — yfirþjálfari samþykkir og æfingarnar þínar fara þá sjálfkrafa í pottinn.</li>
+      <li>Skráðu frí hér <b>um leið</b> og þú veist af því — æfingarnar þínar fara þá sjálfkrafa í pottinn.</li>
       <li>Sérðu lausan tíma sem þú getur tekið? Smelltu á „Ég tek tímann“ — þá er hann frá.</li>
       <li>Láttu líka vita í Messenger-grúbbunni svo allir séu með.</li>
       <li>Ef enginn tekur tíma: Benedikt finnur mann. Falli æfing alveg niður þarf Benedikt <b>og</b> Hafþór (tengiliður Breiðabliks) að vita af því.</li>
@@ -324,8 +317,7 @@ var MONTH_BLOCKS=[
 
 /* ---------- ástand ---------- */
 var STATE = JSON.parse(document.getElementById("state").textContent);
-STATE.requests = STATE.requests || [];
-var HEAD_COACH = "Benedikt Briem";
+delete STATE.requests;
 var who = "";
 try{ who = localStorage.getItem("afleysing-who")||""; }catch(e){}
 var curMonth = (function(){
@@ -428,33 +420,6 @@ function addAbsence(coach,from,to,reason,note){
   STATE.absences.push({id:id,coach:coach,from:from,to:to,reason:reason,note:note||""});
   saveState();
 }
-function addRequest(coach,from,to,reason){
-  var id="r"+Date.now().toString(36);
-  STATE.requests.push({id:id,coach:coach,from:from,to:to,reason:reason,by:who,status:"pending",ts:Date.now()});
-  saveState();
-}
-function findReq(id){
-  for(var i=0;i<STATE.requests.length;i++) if(STATE.requests[i].id===id) return STATE.requests[i];
-  return null;
-}
-function approveReq(id){
-  var r=findReq(id); if(!r) return;
-  if(!confirm("Samþykkja frí: "+(COACHES[r.coach]?COACHES[r.coach].name:r.coach)+" "+dlong(r.from)+(r.to!==r.from?" – "+dlong(r.to):"")+"? Æfingarnar fara í pottinn.")) return;
-  STATE.requests=STATE.requests.filter(function(x){return x.id!==id;});
-  STATE.absences.push({id:"a"+Date.now().toString(36),coach:r.coach,from:r.from,to:r.to,reason:r.reason,note:"Beiðni samþykkt af yfirþjálfara."});
-  saveState();
-}
-function rejectReq(id){
-  var r=findReq(id); if(!r) return;
-  var why=prompt("Hafna beiðni — stutt skýring (birtist umsækjanda):","");
-  if(why===null) return;
-  r.status="rejected"; r.rejNote=why.trim();
-  saveState();
-}
-function delReq(id){
-  STATE.requests=STATE.requests.filter(function(x){return x.id!==id;});
-  saveState();
-}
 function delAbsence(id){
   var a=null; STATE.absences=STATE.absences.filter(function(x){ if(x.id===id){a=x;return false;} return true; });
   if(a){
@@ -497,7 +462,6 @@ function render(){
   document.getElementById("stVantar").textContent=nOpen;
   document.getElementById("stAthuga").textContent=nCheck;
   document.getElementById("stManna").textContent=nDone;
-  document.getElementById("stBeidnir").textContent=STATE.requests.filter(function(r){return r.status==="pending";}).length;
   var nu=document.getElementById("nextup");
   if(next){
     var lbl=next.kind==="auto"
@@ -544,36 +508,6 @@ function render(){
         +'<div class="actions">'+act+"</div></div>";
     }).join("");
   }
-
-  /* frí-beiðnir */
-  var isHead = who===HEAD_COACH;
-  document.getElementById("friBtn").textContent = isHead ? "Skrá frí — fer beint í pottinn" : "Senda frí-beiðni";
-  document.getElementById("friHint").style.display = isHead ? "none" : "";
-  document.getElementById("reqList").innerHTML=STATE.requests.map(function(r){
-    var cname=COACHES[r.coach]?COACHES[r.coach].name:r.coach;
-    var span=r.from===r.to?dlong(r.from):dlong(r.from)+" – "+dlong(r.to);
-    var n=SESSIONS.filter(function(s){return s.date>=r.from&&s.date<=r.to&&s.c.indexOf(r.coach)>=0;}).length;
-    var cnt=n===1?"1 æfing færi í pottinn":n+" æfingar færu í pottinn";
-    if(r.status==="rejected"){
-      return '<div class="card rej"><div class="row1"><span class="when">'+esc(span)+'</span> <span class="badge rej">Hafnað</span></div>'
-        +'<div class="what">'+esc(cname)+' · '+esc(r.reason)+"</div>"
-        +(r.rejNote?'<div class="why">Skýring: '+esc(r.rejNote)+"</div>":"")
-        +'<div class="actions"><button class="btn subtle" data-act="delreq" data-key="'+esc(r.id)+'">fjarlægja</button></div></div>';
-    }
-    var act;
-    if(isHead){
-      act='<button class="btn primary" data-act="approve" data-key="'+esc(r.id)+'">Samþykkja</button> '
-         +'<button class="btn" data-act="reject" data-key="'+esc(r.id)+'">Hafna</button>';
-    }else if(who&&(who===r.by||who===cname)){
-      act='<span class="covered-by">Bíður samþykkis yfirþjálfara</span> <button class="btn subtle" data-act="delreq" data-key="'+esc(r.id)+'">afturkalla</button>';
-    }else{
-      act='<span class="covered-by">Bíður samþykkis yfirþjálfara</span>';
-    }
-    return '<div class="card req"><div class="row1"><span class="when">'+esc(span)+'</span> <span class="badge req">Frí-beiðni</span></div>'
-      +'<div class="what">'+esc(cname)+' · '+esc(r.reason)+"</div>"
-      +'<div class="why">'+esc(cnt)+(r.by&&r.by!==cname?" · sent inn af "+esc(r.by):"")+"</div>"
-      +'<div class="actions">'+act+"</div></div>";
-  }).join("");
 
   /* frí-listi */
   document.getElementById("absList").innerHTML=STATE.absences.map(function(a){
@@ -669,8 +603,7 @@ document.getElementById("friForm").addEventListener("submit",function(e){
   var r=document.getElementById("friReason").value.trim();
   if(!f||!t||!r) return;
   if(t<f){ toast("„Til og með“ er á undan „frá og með“."); return; }
-  if(who===HEAD_COACH) addAbsence(c,f,t,r);
-  else addRequest(c,f,t,r);
+  addAbsence(c,f,t,r);
 });
 document.getElementById("manForm").addEventListener("submit",function(e){
   e.preventDefault();
@@ -684,9 +617,6 @@ document.addEventListener("click",function(e){
   var act=b.getAttribute("data-act"), key=b.getAttribute("data-key"), label=b.getAttribute("data-label")||"";
   if(act==="take") takeShift(key,label);
   else if(act==="release") releaseShift(key,label);
-  else if(act==="approve"){ if(!readonly&&requireWho()) approveReq(key); }
-  else if(act==="reject"){ if(!readonly&&requireWho()) rejectReq(key); }
-  else if(act==="delreq"){ if(!readonly&&confirm("Fjarlægja þessa frí-beiðni?")) delReq(key); }
   else if(act==="delabs"){ if(confirm("Eyða þessari frískráningu (og afleysingum hennar)?")) delAbsence(key); }
   else if(act==="delman"){ if(confirm("Fjarlægja þessa vakt úr pottinum?")) delManual(key); }
   else if(b.classList.contains("mchip")){ }
