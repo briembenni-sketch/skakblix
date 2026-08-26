@@ -318,6 +318,10 @@ var MONTH_BLOCKS=[
 /* ---------- ástand ---------- */
 var STATE = JSON.parse(document.getElementById("state").textContent);
 delete STATE.requests;
+/* Sameiginleg vistun: slóð á Apps Script vef-appið. Þegar hún er sett
+   vistast allt þangað og virkar hjá öllum — annars claude.ai-leiðin. */
+var SYNC_URL = "";
+var VERSION = 0;
 var who = "";
 try{ who = localStorage.getItem("afleysing-who")||""; }catch(e){}
 var curMonth = (function(){
@@ -365,6 +369,39 @@ function toast(msg){
 function setReadonly(){
   readonly=true; document.body.classList.add("readonly"); render();
 }
+function loadRemote(){
+  if(!SYNC_URL) return Promise.resolve();
+  return fetch(SYNC_URL,{cache:"no-store"}).then(function(r){return r.json();}).then(function(res){
+    if(res&&res.state){ STATE=res.state; VERSION=res.version||0; render(); }
+  }).catch(function(){});
+}
+function commitRemote(mut,isRetry){
+  mut(STATE); render();
+  var ov=document.getElementById("overlay"); ov.classList.add("on");
+  return fetch(SYNC_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({state:STATE,baseVersion:VERSION})})
+    .then(function(r){return r.json();})
+    .then(function(res){
+      ov.classList.remove("on");
+      if(res.ok){ VERSION=res.version; return; }
+      if(res.conflict){
+        STATE=res.state; VERSION=res.version;
+        if(!isRetry) return commitRemote(mut,true);
+        render(); toast("Einhver annar breytti á sama tíma — nýjasta staða sótt, reyndu aftur.");
+        return;
+      }
+      throw new Error(res.error||"óþekkt villa");
+    })
+    .catch(function(){
+      ov.classList.remove("on");
+      toast("Vistun mistókst — athugaðu netsamband og reyndu aftur.");
+      loadRemote();
+    });
+}
+function apply(mut){
+  if(SYNC_URL) return commitRemote(mut,false);
+  mut(STATE);
+  return saveState();
+}
 function saveState(){
   render();
   var ov=document.getElementById("overlay"); ov.classList.add("on");
@@ -405,39 +442,39 @@ function requireWho(){
 function takeShift(key,label){
   if(readonly||!requireWho()) return;
   if(!confirm(who+" tekur: "+label+" — staðfesta?")) return;
-  STATE.covers[key]={by:who,ts:Date.now()};
-  saveState();
+  var name=who;
+  apply(function(st){ st.covers[key]={by:name,ts:Date.now()}; });
 }
 function releaseShift(key,label){
   if(readonly) return;
   var c=STATE.covers[key]; if(!c) return;
   if(!confirm("Hætta við afleysingu ("+c.by+") á: "+label+"?")) return;
-  delete STATE.covers[key];
-  saveState();
+  apply(function(st){ delete st.covers[key]; });
 }
 function addAbsence(coach,from,to,reason,note){
   var id="a"+Date.now().toString(36);
-  STATE.absences.push({id:id,coach:coach,from:from,to:to,reason:reason,note:note||""});
-  saveState();
+  apply(function(st){ st.absences.push({id:id,coach:coach,from:from,to:to,reason:reason,note:note||""}); });
 }
 function delAbsence(id){
-  var a=null; STATE.absences=STATE.absences.filter(function(x){ if(x.id===id){a=x;return false;} return true; });
-  if(a){
-    SESSIONS.forEach(function(s){
-      if(s.date>=a.from&&s.date<=a.to&&s.c.indexOf(a.coach)>=0) delete STATE.covers[s.date+"|"+s.g+"|"+a.coach];
-    });
-  }
-  saveState();
+  apply(function(st){
+    var a=null;
+    st.absences=st.absences.filter(function(x){ if(x.id===id){a=x;return false;} return true; });
+    if(a){
+      SESSIONS.forEach(function(s){
+        if(s.date>=a.from&&s.date<=a.to&&s.c.indexOf(a.coach)>=0) delete st.covers[s.date+"|"+s.g+"|"+a.coach];
+      });
+    }
+  });
 }
 function addManual(date,label){
   var id="m"+Date.now().toString(36);
-  STATE.manual.push({id:id,date:date,label:label,status:"open",note:""});
-  saveState();
+  apply(function(st){ st.manual.push({id:id,date:date,label:label,status:"open",note:""}); });
 }
 function delManual(id){
-  STATE.manual=STATE.manual.filter(function(m){return m.id!==id;});
-  delete STATE.covers["m|"+id];
-  saveState();
+  apply(function(st){
+    st.manual=st.manual.filter(function(m){return m.id!==id;});
+    delete st.covers["m|"+id];
+  });
 }
 
 /* ---------- teikning ---------- */
@@ -627,6 +664,11 @@ document.getElementById("months").addEventListener("click",function(e){
 });
 
 render();
+if(SYNC_URL){
+  loadRemote();
+  setInterval(loadRemote,90000);
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible") loadRemote(); });
+}
 })();
 </script>
 
