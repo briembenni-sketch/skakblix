@@ -213,12 +213,12 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
     <div class="weekly">
       <h3>Fasta vikuplanið</h3>
       <ul>
-        <li><b>Yngri hópur Stúkan:</b> mán 16:30–17:30 og lau 10:00–11:00 (Markús Orri)</li>
-        <li><b>Eldri hópur Stúkan:</b> þri 17:00–18:30 (MO), fim 17:30–19:00 (GE), fös 17:00–18:30 (sameiginleg)</li>
-        <li><b>Framhaldshópur:</b> mán 17:30–19:00 (GE), mið 17:30–19:00 (ÞJ), fös 17:00–18:30 (sameiginleg)</li>
-        <li><b>8. bekkur og eldri:</b> lau 11:00–12:30 (Gunnar Erik)</li>
-        <li><b>Yngri og Eldri hópur Kór:</b> 2x í viku hjá Benedikt Briem — dagar/tímar óákveðnir enn</li>
-        <li><b>U20/afrek:</b> mán og mið 19:15–21:00 (Birkir Ísak)</li>
+        <li><b>Yngri hópur Stúkan</b> · 1.–3. bekkur (árg. 2018–2020): mán 16:30–17:30 og lau 10:00–11:00 (Markús Orri)</li>
+        <li><b>Eldri hópur Stúkan</b> · 4.–7. bekkur (árg. 2014–2017): þri 17:00–18:30 (MO), fim 17:30–19:00 (GE), fös 17:00–18:30 (sameiginleg)</li>
+        <li><b>Framhaldshópur</b> · lengra komnir í 5.–10. bekk (árg. 2011–2016): mán 17:30–19:00 (GE), mið 17:30–19:00 (ÞJ), fös 17:00–18:30 (sameiginleg)</li>
+        <li><b>8. bekkur og eldri</b> · árg. 2013 og eldri: lau 11:00–12:30 (Gunnar Erik)</li>
+        <li><b>Yngri hópur Kór</b> · 1.–3. bekkur og <b>Eldri hópur Kór</b> · 4.–7. bekkur: 2x í viku hjá Benedikt Briem — dagar/tímar óákveðnir enn</li>
+        <li><b>U20/afrek</b> · 20 ára og yngri (árg. 2007 og síðar): mán og mið 19:15–21:00 (Birkir Ísak)</li>
       </ul>
     </div>
     <div class="filters">
@@ -263,12 +263,12 @@ var POOL_EXTRA = ["Mikael Bjarki","Matthías Björgvin","Ingvar","Vignir Vatnar"
 var ALL_NAMES = Object.keys(COACHES).map(function(k){return COACHES[k].name;}).concat(POOL_EXTRA);
 
 var GROUPS = {
-  "yngri":{label:"Yngri hópur Stúkan", short:"Yngri Stúkan"},
-  "eldri":{label:"Eldri hópur Stúkan", short:"Eldri Stúkan"},
-  "framhald":{label:"Framhaldshópur", short:"Framhald"},
+  "yngri":{label:"Yngri hópur Stúkan (1.–3. bekkur, árg. 2018–2020)", short:"Yngri Stúkan"},
+  "eldri":{label:"Eldri hópur Stúkan (4.–7. bekkur, árg. 2014–2017)", short:"Eldri Stúkan"},
+  "framhald":{label:"Framhaldshópur (lengra komnir, 5.–10. bekkur)", short:"Framhald"},
   "eldri-framhald":{label:"Eldri hópur + Framhald (sameiginleg)", short:"Eldri + Framhald"},
-  "8bekkur":{label:"8. bekkur og eldri", short:"8. bekkur+"},
-  "u20":{label:"U20/afrek", short:"U20/afrek"}
+  "8bekkur":{label:"8. bekkur og eldri (árg. 2013 og eldri)", short:"8. bekkur+"},
+  "u20":{label:"U20/afrek (árg. 2007 og síðar)", short:"U20/afrek"}
 };
 var PATTERN = {
   1:[{g:"yngri",t:"16:30–17:30",c:["MO"]},{g:"framhald",t:"17:30–19:00",c:["GE"]},{g:"u20",t:"19:15–21:00",c:["BÍ"]}],
@@ -287,7 +287,7 @@ var MABBR=["jan","feb","mars","apríl","maí","jún","júl","ág","sept","okt","
 function iso(dt){return dt.toISOString().slice(0,10);}
 function parse(d){return new Date(d+"T12:00:00Z");}
 function dlabel(d){var dt=parse(d);return DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1);}
-function dlong(d){var dt=parse(d);return DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+". "+MABBR[dt.getUTCMonth()];}
+function dlong(d){var dt=parse(d);return DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+". "+MABBR[dt.getUTCMonth()]+" "+dt.getUTCFullYear();}
 
 var SESSIONS=[];
 (function(){
@@ -304,15 +304,15 @@ var SESSIONS=[];
 })();
 
 var MONTH_BLOCKS=[
-  {id:"sept",label:"sept",from:"2026-08-31",to:"2026-10-03"},
-  {id:"okt",label:"okt",from:"2026-10-05",to:"2026-10-31"},
-  {id:"nov",label:"nóv",from:"2026-11-02",to:"2026-11-28"},
-  {id:"des",label:"des",from:"2026-11-30",to:"2026-12-17"},
-  {id:"jan",label:"jan",from:"2027-01-05",to:"2027-01-30"},
-  {id:"feb",label:"feb",from:"2027-02-01",to:"2027-02-27"},
-  {id:"mars",label:"mars",from:"2027-03-01",to:"2027-03-19"},
-  {id:"april",label:"apríl",from:"2027-03-30",to:"2027-04-24"},
-  {id:"mai",label:"maí",from:"2027-04-26",to:"2027-05-07"}
+  {id:"sept",label:"sept 2026",from:"2026-08-31",to:"2026-10-03"},
+  {id:"okt",label:"okt 2026",from:"2026-10-05",to:"2026-10-31"},
+  {id:"nov",label:"nóv 2026",from:"2026-11-02",to:"2026-11-28"},
+  {id:"des",label:"des 2026",from:"2026-11-30",to:"2026-12-17"},
+  {id:"jan",label:"jan 2027",from:"2027-01-05",to:"2027-01-30"},
+  {id:"feb",label:"feb 2027",from:"2027-02-01",to:"2027-02-27"},
+  {id:"mars",label:"mars 2027",from:"2027-03-01",to:"2027-03-19"},
+  {id:"april",label:"apríl 2027",from:"2027-03-30",to:"2027-04-24"},
+  {id:"mai",label:"maí 2027",from:"2027-04-26",to:"2027-05-07"}
 ];
 
 /* ---------- ástand ---------- */
@@ -582,7 +582,7 @@ function render(){
   document.getElementById("weeks").innerHTML=wkeys.map(function(wk){
     var days=Object.keys(weeks[wk]).sort();
     var first=parse(days[0]), last=parse(days[days.length-1]);
-    var head=first.getUTCDate()+". "+MABBR[first.getUTCMonth()]+" – "+last.getUTCDate()+". "+MABBR[last.getUTCMonth()];
+    var head=first.getUTCDate()+". "+MABBR[first.getUTCMonth()]+" – "+last.getUTCDate()+". "+MABBR[last.getUTCMonth()]+" "+last.getUTCFullYear();
     return '<div class="week"><h3>Vikan '+head+"</h3>"+days.map(function(d){
       return '<div class="day'+(d===today?" today":"")+'"><div class="dlab">'+esc(dlabel(d))+'</div><div class="sess">'
         +weeks[wk][d].map(function(s){
