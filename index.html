@@ -66,6 +66,25 @@ h2{font-size:21px;margin-bottom:12px}
 .stat.bad b{color:var(--bad)} .stat.warn b{color:var(--warn)} .stat.good b{color:var(--good)}
 .nextup{font-size:14.5px;background:var(--bad-soft);border:1px solid var(--bad);border-radius:10px;padding:9px 13px;color:var(--ink)}
 .nextup.allgood{background:var(--good-soft);border-color:var(--good)}
+.mine{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);font-size:14.5px}
+.mine h3{font-size:14px;margin-bottom:6px}
+.mine ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.mine li{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.mine .md{font-family:"Archivo",sans-serif;font-weight:700;font-variant-numeric:tabular-nums;width:74px;flex:none}
+.mine .mt{font-variant-numeric:tabular-nums;color:var(--muted)}
+.tag{font-size:11.5px;font-weight:700;border-radius:999px;padding:1px 8px;background:var(--good-soft);color:var(--good)}
+.mine-foot{margin:8px 0 0;font-size:13.5px;color:var(--muted)}
+.mine-foot b{color:var(--ink);font-variant-numeric:tabular-nums}
+details.hist{margin-top:12px;font-size:14px}
+details.hist summary{cursor:pointer;color:var(--muted);font-weight:600}
+.hlist{margin-top:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.hrow{display:flex;gap:10px;align-items:baseline;padding:7px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.hrow:last-child{border-bottom:none}
+.hrow .hd{font-family:"Archivo",sans-serif;font-weight:700;width:74px;flex:none;font-variant-numeric:tabular-nums}
+.hrow .hw{flex:1;min-width:180px;color:var(--muted)}
+.hb{font-size:12px;font-weight:700;border-radius:999px;padding:1px 8px}
+.hb.ok{background:var(--good-soft);color:var(--good)}
+.hb.no{background:var(--warn-soft);color:var(--warn)}
 
 .cards{display:flex;flex-direction:column;gap:10px}
 .card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--muted);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
@@ -139,9 +158,6 @@ footer{border-top:1px solid var(--line);margin-top:12px;padding:20px 0 40px;font
 footer h3{font-size:14px;color:var(--ink);margin-bottom:6px}
 footer ol{margin:0 0 14px;padding-left:20px}
 footer li{margin:3px 0}
-.ro-banner{display:none;background:var(--warn-soft);border:1px solid var(--warn);border-radius:10px;padding:9px 13px;font-size:14px;margin-bottom:14px}
-body.readonly .ro-banner{display:block}
-body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.readonly .abs button{display:none}
 
 #overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:50;align-items:center;justify-content:center}
 #overlay.on{display:flex}
@@ -162,28 +178,28 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
 <header class="top"><div class="wrap top-in">
   <div class="brand">
     <div class="checker" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-    <div><h1>Afleysingavaktin</h1><div class="sub">Skákdeild Breiðabliks · veturinn 2026–2027</div></div>
+    <div><h1>Afleysingavaktin</h1><div class="sub">Skákdeild Breiðabliks · veturinn 2026–2027<span id="fresh"></span></div></div>
   </div>
   <div class="who"><label for="whoSel">Hver ert þú?</label><select id="whoSel"><option value="">— veldu nafn —</option></select></div>
 </div></header>
 
 <main class="wrap">
-  <div class="ro-banner">Þú ert í les-ham á þessari síðu. Til að taka tíma eða skrá frí: sendu línu í Messenger-grúbbuna.</div>
-
   <section id="summary">
-    <div class="eyebrow">Staðan núna</div>
+    <div class="eyebrow">Staðan framundan</div>
     <div class="stats">
       <div class="stat bad"><b id="stVantar">0</b><span>vantar afleysingu</span></div>
       <div class="stat warn"><b id="stAthuga">0</b><span>í athugun</span></div>
-      <div class="stat good"><b id="stManna">0</b><span>mannað / staðfest</span></div>
+      <div class="stat good"><b id="stManna">0</b><span>mannað</span></div>
     </div>
     <div class="nextup" id="nextup"></div>
+    <div class="mine" id="mine" hidden></div>
   </section>
 
   <section id="pool">
     <div class="eyebrow">Maður í manns stað</div>
     <h2>Afleysingapotturinn</h2>
     <div class="cards" id="poolCards"></div>
+    <details class="hist" id="histWrap" hidden><summary id="histSum"></summary><div class="hlist" id="hist"></div></details>
   </section>
 
   <section id="fri">
@@ -198,17 +214,17 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
       <div class="full"><button class="btn primary" type="submit">Skrá frí — æfingarnar fara sjálfkrafa í pottinn</button></div>
     </form>
     <div class="abs-list" id="absList"></div>
-    <details class="manual"><summary>Bæta sérstakri vakt í pottinn (t.d. Kór-hópar, annað)</summary>
+    <details class="manual"><summary>Bæta sérstakri vakt í pottinn (t.d. mót eða viðburður)</summary>
       <form class="fri" id="manForm">
         <div><label for="manDate">Dagsetning</label><input id="manDate" type="date" required></div>
-        <div><label for="manLabel">Lýsing</label><input id="manLabel" placeholder="t.d. Yngri Kór 16:30 – vantar" required></div>
+        <div><label for="manLabel">Lýsing</label><input id="manLabel" placeholder="t.d. Skólamót 10:00 – vantar fylgdarmann" required></div>
         <div class="full"><button class="btn" type="submit">Setja í pottinn</button></div>
       </form>
     </details>
   </section>
 
   <section id="tafla">
-    <div class="eyebrow">Veturinn í heild</div>
+    <div class="eyebrow">Það sem er framundan</div>
     <h2>Æfingataflan</h2>
     <div class="weekly">
       <h3>Fasta vikuplanið</h3>
@@ -250,7 +266,6 @@ body.readonly .actions,body.readonly form.fri,body.readonly details.manual,body.
 <script>
 (function(){
 "use strict";
-var BOOT = "<!doctype html>\n" + document.documentElement.outerHTML;
 
 /* ---------- grunnskrá ---------- */
 var COACHES = {
@@ -285,9 +300,11 @@ var SEASON_START="2026-08-31", SEASON_END="2027-05-07";
 function isHoliday(d){
   return (d>="2026-12-18"&&d<="2027-01-04")||(d>="2027-03-20"&&d<="2027-03-29")||d==="2027-04-22"||d==="2027-05-01"||d==="2027-05-06";
 }
-var DAYS=["sun","Mán","Þri","Mið","Fim","Fös","Lau"];
+var DAYS=["Sun","Mán","Þri","Mið","Fim","Fös","Lau"];
 var MABBR=["jan","feb","mars","apríl","maí","jún","júl","ág","sept","okt","nóv","des"];
+var MFULL=["janúar","febrúar","mars","apríl","maí","júní","júlí","ágúst","september","október","nóvember","desember"];
 function iso(dt){return dt.toISOString().slice(0,10);}
+function todayISO(){var d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10);}
 function parse(d){return new Date(d+"T12:00:00Z");}
 function dlabel(d){var dt=parse(d);return DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1);}
 function dlong(d){var dt=parse(d);return DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+". "+MABBR[dt.getUTCMonth()]+" "+dt.getUTCFullYear();}
@@ -320,21 +337,19 @@ var MONTH_BLOCKS=[
 
 /* ---------- ástand ---------- */
 var STATE = JSON.parse(document.getElementById("state").textContent);
-delete STATE.requests;
-/* Sameiginleg vistun: slóð á Apps Script vef-appið. Þegar hún er sett
-   vistast allt þangað og virkar hjá öllum — annars claude.ai-leiðin. */
+/* Sameiginleg vistun: Apps Script vef-appið (backend/Code.gs). */
 var SYNC_URL = "https://script.google.com/macros/s/AKfycbxfNwVRDJJzskB7MNCNNq59N-VftXk551dYZllhxrSSXeAYG5TfmxdiDo9ZNJtlfS0qRA/exec";
 var VERSION = 0;
 var who = "";
 try{ who = localStorage.getItem("afleysing-who")||""; }catch(e){}
-var curMonth = (function(){
-  var today = new Date().toISOString().slice(0,10);
-  for(var i=0;i<MONTH_BLOCKS.length;i++){ if(today<=MONTH_BLOCKS[i].to) return MONTH_BLOCKS[i].id; }
-  return "sept";
-})();
+function upcomingMonths(){
+  var t=todayISO();
+  var list=MONTH_BLOCKS.filter(function(m){return m.to>=t;});
+  return list.length?list:MONTH_BLOCKS.slice(-1);
+}
+var curMonth = upcomingMonths()[0].id;
 var mineOnly=false;
 try{ mineOnly = localStorage.getItem("afleysing-mine")==="1"; }catch(e){}
-var readonly=false;
 
 /* þarfir: sjálfvirkar úr fríum + handvirkar vaktir */
 function computeNeeds(){
@@ -363,19 +378,19 @@ function needStatus(n){
   return "open";
 }
 
-/* ---------- vistun (síðan gefur sjálfa sig út) ---------- */
+/* ---------- vistun ---------- */
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function toast(msg){
   var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on");
   clearTimeout(toast._h); toast._h=setTimeout(function(){t.classList.remove("on");},4200);
 }
-function setReadonly(){
-  readonly=true; document.body.classList.add("readonly"); render();
+function markFresh(){
+  var d=new Date();
+  document.getElementById("fresh").textContent=" · uppfært kl. "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
 }
 function loadRemote(){
-  if(!SYNC_URL) return Promise.resolve();
   return fetch(SYNC_URL,{cache:"no-store"}).then(function(r){return r.json();}).then(function(res){
-    if(res&&res.state){ STATE=res.state; VERSION=res.version||0; render(); }
+    if(res&&res.state){ STATE=res.state; VERSION=res.version||0; render(); markFresh(); }
   }).catch(function(){});
 }
 function commitRemote(mut,isRetry){
@@ -385,7 +400,7 @@ function commitRemote(mut,isRetry){
     .then(function(r){return r.json();})
     .then(function(res){
       ov.classList.remove("on");
-      if(res.ok){ VERSION=res.version; return; }
+      if(res.ok){ VERSION=res.version; markFresh(); return; }
       if(res.conflict){
         STATE=res.state; VERSION=res.version;
         if(!isRetry) return commitRemote(mut,true);
@@ -401,38 +416,7 @@ function commitRemote(mut,isRetry){
     });
 }
 function apply(mut){
-  if(SYNC_URL) return commitRemote(mut,false);
-  mut(STATE);
-  return saveState();
-}
-function saveState(){
-  render();
-  var ov=document.getElementById("overlay"); ov.classList.add("on");
-  var useP=(window.claude&&window.claude.use)?window.claude.use("artifact"):Promise.resolve(null);
-  return useP.then(function(art){
-    if(!art){ ov.classList.remove("on"); toast("Vistun er ekki í boði í þessum vafra — opnaðu síðuna í Claude."); return; }
-    return fetch(location.href.split("#")[0],{cache:"no-store"}).then(function(r){
-      if(!r.ok) throw new Error("src");
-      return r.text();
-    }).catch(function(){ return BOOT; }).then(function(src){
-      var OPEN='<script id="state" type="application/json">';
-      var i=src.indexOf(OPEN);
-      var j=src.indexOf("<\/script>",i);
-      if(i<0||j<0) throw {code:"invalid_content",message:"state block"};
-      var json=JSON.stringify(STATE).replace(/</g,"\\u003c");
-      var html=src.slice(0,i+OPEN.length)+json+src.slice(j);
-      return art.publish(html);
-    });
-  }).then(function(res){
-    if(res&&res.version){ /* síðan endurhleðst sjálf */ }
-  }).catch(function(err){
-    ov.classList.remove("on");
-    var code=err&&err.code;
-    if(code==="conflict"){ toast("Einhver annar vistaði rétt á undan — sæki nýjustu útgáfu…"); return; }
-    if(code==="not_writer"||code==="not_granted"||code==="consent_required"){ toast("Þú hefur ekki skrifréttindi á síðuna."); setReadonly(); return; }
-    if(code==="rate_limited"){ toast("Of margar vistanir í röð — bíddu augnablik og reyndu aftur."); return; }
-    toast("Vistun mistókst — reyndu aftur.");
-  });
+  return commitRemote(mut,false);
 }
 
 /* ---------- aðgerðir ---------- */
@@ -443,13 +427,12 @@ function requireWho(){
   return false;
 }
 function takeShift(key,label){
-  if(readonly||!requireWho()) return;
+  if(!requireWho()) return;
   if(!confirm(who+" tekur: "+label+" — staðfesta?")) return;
   var name=who;
   apply(function(st){ st.covers[key]={by:name,ts:Date.now()}; });
 }
 function releaseShift(key,label){
-  if(readonly) return;
   var c=STATE.covers[key]; if(!c) return;
   if(!confirm("Hætta við afleysingu ("+c.by+") á: "+label+"?")) return;
   apply(function(st){ delete st.covers[key]; });
@@ -487,15 +470,69 @@ function iniSpan(list){
     return '<span class="ini" style="--cc:var('+cvar(k)+');color:var('+cvar(k)+')">'+esc(k)+"</span>";
   }).join(" ");
 }
+function renderMine(all,today){
+  var box=document.getElementById("mine");
+  if(!who){ box.hidden=true; box.innerHTML=""; return; }
+  var myIni=null;
+  Object.keys(COACHES).forEach(function(k){ if(COACHES[k].name===who) myIni=k; });
+  var away={};
+  all.forEach(function(n){ if(n.kind==="auto") away[n.session.key+"|"+n.coach]=true; });
+  var sessByKey={};
+  SESSIONS.forEach(function(s){ sessByKey[s.key]=s; });
+  var items=[];
+  if(myIni){
+    SESSIONS.forEach(function(s){
+      if(s.date>=today&&s.c.indexOf(myIni)>=0&&!away[s.key+"|"+myIni]) items.push({d:s.date,t:s.t,w:GROUPS[s.g].short,cover:false});
+    });
+  }
+  var month=today.slice(0,7), monthCount=0;
+  Object.keys(STATE.covers).forEach(function(k){
+    if(STATE.covers[k].by!==who) return;
+    var d,t,w;
+    if(k.indexOf("m|")===0){
+      var m=STATE.manual.filter(function(x){return "m|"+x.id===k;})[0]; if(!m) return;
+      d=m.date; t=""; w=m.label;
+    }else{
+      var p=k.split("|"), s=sessByKey[p[0]+"|"+p[1]]; if(!s) return;
+      d=s.date; t=s.t; w=GROUPS[s.g].short+" · í stað "+(COACHES[p[2]]?COACHES[p[2]].name:p[2]);
+    }
+    if(d.slice(0,7)===month) monthCount++;
+    if(d>=today) items.push({d:d,t:t,w:w,cover:true});
+  });
+  items.sort(function(a,b){return (a.d+a.t)<(b.d+b.t)?-1:1;});
+  box.innerHTML='<h3>Næstu tímar þínir</h3>'
+    +(items.length?"<ul>"+items.slice(0,5).map(function(i){
+      return '<li><span class="md">'+esc(dlabel(i.d))+'</span><span class="mt">'+esc(i.t)+"</span><span>"+esc(i.w)+"</span>"+(i.cover?'<span class="tag">afleysing</span>':"")+"</li>";
+    }).join("")+"</ul>":'<div class="mine-foot" style="margin:0">Engir tímar skráðir á þig framundan.</div>')
+    +'<p class="mine-foot">Afleysingar þínar í '+MFULL[parseInt(month.slice(5),10)-1]+": <b>"+monthCount+"</b> — gott að hafa við höndina þegar reikningurinn er gerður.</p>";
+  box.hidden=false;
+}
+function renderHistory(past){
+  var wrap=document.getElementById("histWrap");
+  wrap.hidden=!past.length;
+  if(!past.length) return;
+  var nCovered=past.filter(function(n){return STATE.covers[n.key];}).length;
+  document.getElementById("histSum").textContent="Saga — liðnar afleysingar ("+past.length+", þar af "+nCovered+" mannaðar)";
+  document.getElementById("hist").innerHTML=past.slice().reverse().map(function(n){
+    var cov=STATE.covers[n.key];
+    var what=n.kind==="auto"
+      ? GROUPS[n.session.g].short+" "+n.session.t+" · í stað "+COACHES[n.coach].name
+      : n.manual.label;
+    return '<div class="hrow"><span class="hd">'+esc(dlabel(needDate(n)))+'</span><span class="hw">'+esc(what)+"</span>"
+      +(cov?'<span class="hb ok">'+esc(cov.by)+"</span>":'<span class="hb no">engin skráð</span>')+"</div>";
+  }).join("");
+}
 function render(){
-  var needs=computeNeeds();
-  var today=new Date().toISOString().slice(0,10);
+  var today=todayISO();
+  var all=computeNeeds();
+  var needs=all.filter(function(n){return needDate(n)>=today;});
+  var past=all.filter(function(n){return needDate(n)<today;});
 
   /* stats */
   var nOpen=0,nCheck=0,nDone=0,next=null;
   needs.forEach(function(n){
     var st=needStatus(n);
-    if(st==="open"){ nOpen++; if(!next&&needDate(n)>=today) next=n; }
+    if(st==="open"){ nOpen++; if(!next) next=n; }
     else if(st==="check") nCheck++;
     else nDone++;
   });
@@ -511,10 +548,13 @@ function render(){
     nu.innerHTML="<b>Næst óleyst:</b> "+esc(lbl);
   }else{
     nu.className="nextup allgood";
-    nu.textContent = nOpen>0 ? "Óleystir tímar eru liðnir — sjá pottinn." : "Allar æfingar mannaðar eins og staðan er núna. ✔";
+    nu.textContent = "Allar æfingar framundan eru mannaðar. ✔";
   }
+  renderMine(all,today);
 
   /* pottur */
+  var awayAll={};
+  all.forEach(function(n){ if(n.kind==="auto") awayAll[n.session.key+"|"+n.coach]=true; });
   var pc=document.getElementById("poolCards");
   if(!needs.length){
     pc.innerHTML='<div class="empty">Potturinn er tómur — engin frí skráð framundan.</div>';
@@ -524,8 +564,12 @@ function render(){
       var when,what,why,label;
       if(n.kind==="auto"){
         var s=n.session, others=s.c.filter(function(x){return x!==n.coach;});
+        var stay=others.filter(function(o){return !awayAll[s.key+"|"+o];});
+        var gone=others.filter(function(o){return awayAll[s.key+"|"+o];});
         when=dlong(s.date); what=GROUPS[s.g].label+" · "+s.t;
-        why="Í stað: "+COACHES[n.coach].name+" ("+esc(n.absence.reason)+")"+(others.length?" · "+others.map(function(o){return COACHES[o].name;}).join(", ")+" er áfram á staðnum":"");
+        why="Í stað: "+COACHES[n.coach].name+" ("+n.absence.reason+")"
+          +(stay.length?" · "+stay.map(function(o){return COACHES[o].name;}).join(", ")+" er áfram á staðnum":"")
+          +(gone.length?" · "+gone.map(function(o){return COACHES[o].name;}).join(", ")+" er líka fjarverandi":"");
         label=dlabel(s.date)+" "+GROUPS[s.g].short+" "+s.t;
       }else{
         when=dlong(n.manual.date); what=n.manual.label;
@@ -549,26 +593,32 @@ function render(){
     }).join("");
   }
 
-  /* frí-listi */
-  document.getElementById("absList").innerHTML=STATE.absences.map(function(a){
+  renderHistory(past);
+
+  /* frí-listi: bara frí sem eru í gangi eða framundan */
+  var upAbs=STATE.absences.filter(function(a){return a.to>=today;})
+    .sort(function(x,y){return x.from<y.from?-1:x.from>y.from?1:0;});
+  document.getElementById("absList").innerHTML=upAbs.map(function(a){
     var span = a.from===a.to ? dlong(a.from) : dlong(a.from)+" – "+dlong(a.to);
     return '<div class="abs"><span class="grow"><b>'+esc(COACHES[a.coach]?COACHES[a.coach].name:a.coach)+"</b> · "+esc(span)+" · "+esc(a.reason)
       +(a.note?'<span class="note">'+esc(a.note)+"</span>":"")+"</span>"
       +'<button class="btn subtle" data-act="delabs" data-key="'+esc(a.id)+'">eyða</button></div>';
-  }).join("")||'<div class="empty">Engin frí skráð.</div>';
+  }).join("")||'<div class="empty">Engin frí skráð framundan.</div>';
 
-  /* mánaðaflipar */
-  document.getElementById("months").innerHTML=MONTH_BLOCKS.map(function(m){
+  /* mánaðaflipar: bara mánuðir sem eru ekki liðnir */
+  var months=upcomingMonths();
+  if(!months.some(function(m){return m.id===curMonth;})) curMonth=months[0].id;
+  document.getElementById("months").innerHTML=months.map(function(m){
     return '<button class="mchip" data-m="'+m.id+'" aria-pressed="'+(m.id===curMonth)+'">'+m.label+"</button>";
   }).join("");
 
-  /* vikur */
+  /* vikur: liðnir dagar faldir */
   var blk=MONTH_BLOCKS.filter(function(m){return m.id===curMonth;})[0];
   var needByKey={};
   needs.forEach(function(n){ if(n.kind==="auto") needByKey[n.session.key]=needByKey[n.session.key]||[], needByKey[n.session.key].push(n); });
   var myIni=null;
   Object.keys(COACHES).forEach(function(k){ if(COACHES[k].name===who) myIni=k; });
-  var sess=SESSIONS.filter(function(s){return s.date>=blk.from&&s.date<=blk.to;});
+  var sess=SESSIONS.filter(function(s){return s.date>=blk.from&&s.date<=blk.to&&s.date>=today;});
   if(mineOnly&&who){
     sess=sess.filter(function(s){
       if(myIni&&s.c.indexOf(myIni)>=0) return true;
@@ -598,7 +648,7 @@ function render(){
           return '<div class="chip" style="--cc:var('+cvar(s.c[0])+')"><span class="t">'+esc(s.t)+'</span><span class="g">'+esc(GROUPS[s.g].short)+"</span>"+iniSpan(s.c)+flags+"</div>";
         }).join("")+"</div></div>";
     }).join("")+"</div>";
-  }).join("")||'<div class="empty">'+(mineOnly?"Engir tímar merktir þér í þessum mánuði.":"Engar æfingar í þessum mánuði (frí).")+"</div>";
+  }).join("")||'<div class="empty">'+(mineOnly?"Engir tímar merktir þér það sem eftir er af mánuðinum.":"Engar fleiri æfingar í þessum mánuði.")+"</div>";
 
   /* legend */
   document.getElementById("legend").innerHTML=Object.keys(COACHES).map(function(k){
@@ -637,7 +687,7 @@ function friPreview(){
 ["friCoach","friFrom","friTo"].forEach(function(id){document.getElementById(id).addEventListener("change",friPreview);});
 document.getElementById("friForm").addEventListener("submit",function(e){
   e.preventDefault();
-  if(readonly||!requireWho()) return;
+  if(!requireWho()) return;
   var c=document.getElementById("friCoach").value;
   var f=document.getElementById("friFrom").value, t=document.getElementById("friTo").value;
   var r=document.getElementById("friReason").value.trim();
@@ -647,7 +697,7 @@ document.getElementById("friForm").addEventListener("submit",function(e){
 });
 document.getElementById("manForm").addEventListener("submit",function(e){
   e.preventDefault();
-  if(readonly||!requireWho()) return;
+  if(!requireWho()) return;
   var d=document.getElementById("manDate").value, l=document.getElementById("manLabel").value.trim();
   if(!d||!l) return;
   addManual(d,l);
